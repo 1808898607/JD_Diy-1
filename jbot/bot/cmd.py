@@ -42,6 +42,5 @@ async def my_cmd(event):
         logger.error(f"错误 {str(e)}")
 
 
-
 if ch_name:
     jdbot.add_event_handler(my_cmd, events.NewMessage(chats=chat_id, pattern=BOT_SET['命令别名']['cmd']))

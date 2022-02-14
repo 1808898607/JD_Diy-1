@@ -1,10 +1,8 @@
-import os
 import random
-import traceback
 
 from telethon import events
 
-from .. import jdbot, chat_id, BOT_SET, ch_name, logger
+from .. import jdbot, chat_id, BOT_SET, ch_name
 
 
 @jdbot.on(events.NewMessage())
