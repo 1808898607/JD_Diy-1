@@ -1,7 +1,10 @@
-from telethon import events, Button
 import json
 import os
+import traceback
 from asyncio import exceptions
+
+from telethon import events, Button
+
 from .. import jdbot, chat_id, logger, LOG_DIR, ch_name, BOT_SET
 from ..bot.utils import QL, press_event, split_list, cron_manage, AUTH_FILE, row
 
@@ -127,8 +130,14 @@ async def my_cron(event):
         await jdbot.edit_message(msg, '选择已超时，对话已停止')
         logger.error(f'选择已超时，对话已停止')
     except Exception as e:
-        await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/addcron'))
@@ -176,8 +185,14 @@ async def my_addcron(event):
     except exceptions.TimeoutError:
         await jdbot.edit_message(msg, '选择已超时，对话已停止')
     except Exception as e:
-        await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
 
 
 if ch_name:

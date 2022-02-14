@@ -1,7 +1,12 @@
+import os
+import traceback
+
 from telethon import events
+
+from .beandata import get_bean_data
 from .. import jdbot, chat_id, LOG_DIR, logger, BOT_SET, ch_name
 from ..bot.quickchart import QuickChart
-from .beandata import get_bean_data
+
 BEAN_IMG = f'{LOG_DIR}/bot/bean.jpeg'
 
 
@@ -20,12 +25,18 @@ async def my_chart(event):
                 msg = await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(res["data"])}')
             else:
                 creat_chart(res['data'][3], f'账号{str(text)}', res['data'][0], res['data'][1], res['data'][2][1:])
-                msg = await jdbot.edit_message(msg, f'您的账号{text}收支情况', file=BEAN_IMG)
+                await jdbot.edit_message(msg, f'您的账号{text}收支情况', file=BEAN_IMG)
         else:
-            msg = await jdbot.edit_message(msg, '请正确使用命令\n/chart n n为第n个账号')
+            await jdbot.edit_message(msg, '请正确使用命令\n/chart n n为第n个账号')
     except Exception as e:
-        await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
 
 
 def creat_chart(xdata, title, bardata, bardata2, linedate):

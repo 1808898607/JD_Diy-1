@@ -1,9 +1,12 @@
-from telethon import events, Button
 import os
 import shutil
+import traceback
 from asyncio import exceptions
-from .. import jdbot, chat_id, JD_DIR, BOT_SET, ch_name
+
+from telethon import events, Button
+
 from .utils import split_list, logger, press_event
+from .. import jdbot, chat_id, JD_DIR, BOT_SET, ch_name
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern='/edit'))
@@ -153,6 +156,12 @@ async def edit_file(conv, SENDER, path, msg, page, filelist):
         await jdbot.edit_message(msg, '选择已超时，本次对话已停止')
         return None, None, None, None
     except Exception as e:
-        await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
         return None, None, None, None

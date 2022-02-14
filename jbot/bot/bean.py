@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont, ImageDraw
 from telethon import events
-from .. import LOG_DIR, jdbot, chat_id, BOT_SET, BOT_DIR, logger,  ch_name
+from .. import LOG_DIR, jdbot, chat_id, BOT_SET, BOT_DIR, logger, ch_name, JD_DIR
 from prettytable import PrettyTable
 import subprocess
 from .beandata import get_bean_data
@@ -42,7 +42,8 @@ async def bot_bean(event):
                 await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(res["data"])}')
             else:
                 creat_bean_count(res['data'][3], res['data'][0], res['data'][1], res['data'][2][1:])
-                await jdbot.edit_message(msg, f'您的账号{text}收支情况', file=BEAN_IMG)
+                await msg.delete()
+                await jdbot.send_message(chat_id, f'您的账号{text}收支情况', file=BEAN_IMG)
         else:
             await jdbot.edit_message(msg, '青龙暂仅支持/bean n n为账号数字')
     except Exception as e:
@@ -53,11 +54,11 @@ async def bot_bean(event):
 def creat_bean_count(date, beansin, beansout, beanstotal):
     tb = PrettyTable()
     tb.add_column('DATE', date)
-    tb.add_column('BEANSIN', beansin)
-    tb.add_column('BEANSOUT', beansout)
+    tb.add_column('IN', beansin)
+    tb.add_column('OUT', beansout)
     tb.add_column('TOTAL', beanstotal)
     font = ImageFont.truetype(FONT_FILE, 18)
-    im = Image.new("RGB", (500, 260), (244, 244, 244))
+    im = Image.new("RGB", (410, 260), (244, 244, 244))
     dr = ImageDraw.Draw(im)
     dr.text((10, 5), str(tb), font=font, fill="#000000")
     im.save(BEAN_IMG)
@@ -70,7 +71,7 @@ def creat_bean_counts(csv_file):
     num = len(data[-1].split(',')) - 1
     title = ['DATE']
     for i in range(0, num):
-        title.append('COUNT'+str(i+1))
+        title.append('COUNT' + str(i + 1))
     tb.field_names = title
     data = data[-7:]
     for line in data:
@@ -88,7 +89,7 @@ def creat_bean_counts(csv_file):
     font = ImageFont.truetype(FONT_FILE, 18)
     dr.text((10, 5), str(tb), font=font, fill="#000000")
     im.save(BEAN_IMG)
-    
+
 
 if ch_name:
     jdbot.add_event_handler(bot_bean, events.NewMessage(chats=chat_id, pattern=BOT_SET['命令别名']['bean']))

@@ -1,6 +1,10 @@
-from telethon import events, Button
-from .utils import split_list, press_event, cmd
+import os
+import traceback
 from asyncio import exceptions
+
+from telethon import events, Button
+
+from .utils import split_list, press_event, cmd
 from .. import jdbot, chat_id, SHORTCUT_FILE, logger, BOT_SET, ch_name
 
 
@@ -33,8 +37,14 @@ async def my_a(event):
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止')
     except Exception as e:
-        await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/b$'))
@@ -50,8 +60,14 @@ async def my_b(event):
         markup = split_list(markup, int(BOT_SET['每页列数']))
         await jdbot.send_message(chat_id, '请做出您的选择：', buttons=markup)
     except Exception as e:
-        await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/clearboard$'))
@@ -59,8 +75,14 @@ async def my_clear(event):
     try:
         await jdbot.send_message(chat_id, '已清空您的keyboard',buttons=Button.clear())
     except Exception as e:
-        await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
 
 if ch_name:
     jdbot.add_event_handler(my_a, events.NewMessage(

@@ -1,3 +1,5 @@
+import traceback
+
 from telethon import events, Button
 import json
 import os
@@ -107,8 +109,14 @@ async def bot_env_ql(event):
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止')
     except Exception as e:
-        msg = await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/addenv'))
@@ -148,8 +156,16 @@ async def bot_addenv(event):
     except exceptions.TimeoutError:
         msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
     except Exception as e:
-        msg = await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
-        logger.error(f'something wrong,I\'m sorry\n{str(e)}')
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
+        
+        
 if ch_name:
     jdbot.add_event_handler(bot_addenv, events.NewMessage(
         from_users=chat_id, pattern=BOT_SET['命令别名']['addenv']))

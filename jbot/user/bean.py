@@ -14,7 +14,7 @@ import traceback
 from telethon import events
 
 from .login import user
-from .. import chat_id, jdbot, logger, JD_DIR
+from .. import chat_id, jdbot, logger, LOG_DIR
 from ..user.utils import bot_id
 
 
@@ -31,24 +31,25 @@ async def beanchange(event):
             num = 1
         if "b" in message:
             cmdline = f"/bean {num}"
-            jpeg = JD_DIR + '/log/bean.jpg'
+            jpeg = f"{LOG_DIR}/bean.jpg"
         else:
             cmdline = f"/chart {num}"
-            jpeg = JD_DIR + '/log/bot/bean.jpeg'
+            jpeg = f"{LOG_DIR}/bot/bean.jpeg"
         if event.chat_id != bot_id:
             msg = await event.edit("正在查询，请稍后")
             await user.send_message(bot_id, cmdline)
             await asyncio.sleep(7)
             await msg.delete()
-            await user.send_message(event.chat_id, f'您的账号{num}收支情况', file=jpeg)
+            await user.send_message(event.chat_id, f"您的账号{num}收支情况", file=jpeg)
         else:
             await event.delete()
             await user.send_message(bot_id, cmdline)
     except Exception as e:
-        title = "【💥错误💥】"
-        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
-        function = "函数名：" + e.__traceback__.tb_frame.f_code.co_name
-        details = "错误详情：第 " + str(e.__traceback__.tb_lineno) + " 行"
-        tip = '建议百度/谷歌进行查询'
-        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n{details}\n{traceback.format_exc()}\n{tip}")
-        logger.error(f"错误--->{str(e)}")
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")

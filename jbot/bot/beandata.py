@@ -1,10 +1,16 @@
-import requests
 import datetime
-import time
 import json
+import os
+import time
+import traceback
 from datetime import timedelta
 from datetime import timezone
-from .utils import CONFIG_SH_FILE, get_cks, AUTH_FILE, QL,logger
+
+import requests
+
+from .utils import CONFIG_SH_FILE, get_cks, AUTH_FILE, QL, logger
+from .. import jdbot, chat_id
+
 SHA_TZ = timezone(
     timedelta(hours=8),
     name='Asia/Shanghai',
@@ -103,7 +109,14 @@ def get_total_beans(ck):
         res = json.loads(resp)
         return res['user']['jingBean']
     except Exception as e:
-        logger.error(str(e))
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
 
 
 def get_bean_data(i):
@@ -130,4 +143,11 @@ def get_bean_data(i):
                     beanstotal.append(beantotal)
             return {'code': 200, 'data': [beans_in[::-1], beans_out[::-1], beanstotal[::-1], beans_res['data'][2][::-1]]}
     except Exception as e:
-        logger.error(str(e))
+        title = "【💥错误💥】\n\n"
+        name = f"文件名：{os.path.split(__file__)[-1].split('.')[0]}\n"
+        function = f"函数名：{e.__traceback__.tb_frame.f_code.co_name}\n"
+        details = f"\n错误详情：第 {str(e.__traceback__.tb_lineno)} 行\n"
+        tip = "\n建议百度/谷歌进行查询"
+        push = f"{title}{name}{function}错误原因：{str(e)}{details}{traceback.format_exc()}{tip}"
+        await jdbot.send_message(chat_id, push)
+        logger.error(f"错误 {str(e)}")
