@@ -24,13 +24,13 @@ if [ -d ${dir_jbot} ]; then
   # 新建目录
   mkdir "$dir_backup"
   # 把root/jbot目录内所有文件移动到备份目录中
-  mv -rf $root/jbot/* "$dir_backup"
+  mv $root/jbot/* "$dir_backup"
 fi
 echo "2、下载bot所需文件..."
 git clone -b $branch $url $dir_diybot
 echo -e "bot文件下载成功...\n"
 # 如果有自己写的diy.py则覆盖拉到/root/repo/diybot/diy目录中
-if [ -f "$dir_backup"/diy/diy.py ]; then cp -f "$dir_backup"/diy/diy.py "$dir_diybot"/diy/diy.py; fi
+cp -f "$dir_backup"/diy/diy.py "$dir_diybot"/diy/diy.py
 # 复制/reppt/repo/diybot/jbot目录中所有文件到/root/jbot目录中
 cp -rf $dir_diybot/jbot/* $dir_jbot
 # 如果不存在/root/config/bot.json时候拉取一份进去
@@ -50,7 +50,7 @@ fi
 echo "3、安装python3依赖..."
 /usr/bin/python3 -m pip install --upgrade pip
 pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
-pip3  --no-cache-dir --default-timeout=100 install -r requirements.txt
+pip3  --no-cache-dir --default-timeout=100 install -r $dir_jbot/requirements.txt
 echo -e "python3依赖安装成功...\n"
 echo "4、启动bot程序..."
 # shellcheck disable=SC2143
