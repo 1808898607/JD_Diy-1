@@ -12,6 +12,7 @@ from ..bot.utils import press_event
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/upbot$'))
 async def myupbot(event):
+    msg = await jdbot.send_message(chat_id, "【前瞻计划】\n\n准备更新程序")
     try:
         SENDER = event.sender.id
         buttons = [Button.inline("是", "yes"), Button.inline("取消", "cancel")]
@@ -25,8 +26,7 @@ async def myupbot(event):
             else:
                 await jdbot.delete_messages(chat_id, msg)
             conversation.cancel()
-        msg = await jdbot.send_message(chat_id, "【前瞻计划】\n\n准备更新程序")
-        url = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/bot_beta.sh"
+        url = "https://raw.githubusercontent.com/chiupam/JD_Diy/develop/shell/bot.sh"
         if '下载代理' in BOT_SET.keys() and str(BOT_SET['下载代理']).lower() != 'false' and 'github' in url:
             url = f'{str(BOT_SET["下载代理"])}/{url}'
         resp = requests.get(url).text
